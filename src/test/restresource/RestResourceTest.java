@@ -9,7 +9,7 @@ import org.junit.Test;
 import restresource.RestResource;
 import test.support.Person;
 
-public class ModelTest {
+public class RestResourceTest {
 	@Test
 	public void testFind() {
 		Person p = RestResource.find(1, Person.class);
@@ -34,5 +34,11 @@ public class ModelTest {
 		List<Person> l = RestResource.all(Person.class, "name=John", "test=true");
 		assertEquals(1, l.size());
 		assertEquals("John", l.get(0).getName());
+	}
+	
+	@Test
+	public void testCollectionName() {
+		assertEquals("people", RestResource.collectionName(Person.class));
+		assertEquals("string_builders", RestResource.collectionName(StringBuilder.class));
 	}
 }

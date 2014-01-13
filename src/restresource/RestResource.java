@@ -109,13 +109,14 @@ public class RestResource {
 		return l;
 	}
 
-	protected static String site(Class<?> klass) {
+	public static String site(Class<?> klass) {
 		return invokeClassMethod(klass, "getSite", null);
 	}
 
-	protected static String collectionName(Class<?> klass) {
+	public static String collectionName(Class<?> klass) {
 		return invokeClassMethod(klass, "collectionName",
-				klass.getSimpleName().toLowerCase() + "s");
+				klass.getSimpleName().replaceAll("([a-z])([A-Z])", "$1_$2").
+				toLowerCase() + "s");
 	}
 
 	protected static String invokeClassMethod(Class<?> klass, String method,
