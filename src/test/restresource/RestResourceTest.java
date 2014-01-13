@@ -7,6 +7,8 @@ import java.util.List;
 import org.junit.Test;
 
 import restresource.RestResource;
+import restresource.exceptions.ResourceNotFoundException;
+import test.support.ImaginaryResource;
 import test.support.Person;
 
 public class RestResourceTest {
@@ -16,9 +18,14 @@ public class RestResourceTest {
 		assertEquals("John", p.getName());
 	}
 
-	@Test
+	@Test(expected=ResourceNotFoundException.class)
 	public void testFindNotFound() {
-		assertEquals(null, RestResource.find(25, Person.class));
+		RestResource.find(404, Person.class);
+	}
+
+	@Test(expected=ResourceNotFoundException.class)
+	public void testAllNotFound() {
+		RestResource.all(ImaginaryResource.class);
 	}
 
 	@Test
