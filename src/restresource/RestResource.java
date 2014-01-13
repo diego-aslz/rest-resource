@@ -16,7 +16,7 @@ public class RestResource {
 	public static final int NOT_FOUND = 404;
 	private static String format = "json";
 
-	public static Object find(Object id, Class<?> klass) {
+	public static <T> T find(Object id, Class<T> klass) {
 		StringBuilder sb = new StringBuilder(site(klass)).
 				append(collectionName(klass)).
 				append("/").
@@ -88,7 +88,7 @@ public class RestResource {
 		return connection;
 	}
 
-	public static List<Object> all(Class<?> klass, String... params) {
+	public static <T> List<T> all(Class<T> klass, String... params) {
 		StringBuilder sb = new StringBuilder(site(klass)).
 				append(collectionName(klass)).
 				append(".").
@@ -103,7 +103,7 @@ public class RestResource {
 		}
 		Gson gson = new Gson();
 		@SuppressWarnings("unchecked")
-		List<Object> l = gson.fromJson(body, List.class);
+		List<T> l = gson.fromJson(body, List.class);
 		for (int i = 0; i < l.size(); i++)
 			l.set(i, gson.fromJson(gson.toJson(l.get(i)), klass));
 		return l;

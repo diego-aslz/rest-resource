@@ -18,7 +18,6 @@ public class Person {
   @Expose
   String name;
 
-
   /**
    * Determines the address where the RESTful Web Service is.
    */
@@ -48,9 +47,9 @@ public class Person {
 With that in place, it's possible to call:
 
 ```java
-Person p = (Person) RestResource.find(1, Person.class); // Will trigger GET http://localhost:4567/people/1.json
+Person p = RestResource.find(1, Person.class); // Will trigger GET http://localhost:4567/people/1.json
 
-List<Object> l = RestResource.all(Person.class); // Will trigger GET http://localhost:4567/people.json
+List<Person> l = RestResource.all(Person.class); // Will trigger GET http://localhost:4567/people.json
 ```
 
 ## Dependencies
