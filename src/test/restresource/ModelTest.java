@@ -23,7 +23,7 @@ public class ModelTest {
 
 	@Test
 	public void testAll() {
-		List<?> l = RestResource.all(Person.class);
+		List<Object> l = RestResource.all(Person.class);
 		assertEquals(2, l.size());
 		assertEquals("John", ((Person)l.get(0)).getName());
 		assertEquals("Mary", ((Person)l.get(1)).getName());
