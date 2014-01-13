@@ -2,18 +2,16 @@ package test.support;
 
 import com.google.gson.annotations.Expose;
 
-public class Person implements restresource.RestModel {
+public class Person {
 	@Expose
 	String name;
 
-	@Override
-	public String getRestSite() {
+	public static String getSite() {
 		return "http://localhost:4567/";
 	}
 
-	@Override
-	public String getFormat() {
-		return null;
+	public static String collectionName() {
+		return "people";
 	}
 
 	public String getName() {
@@ -22,13 +20,5 @@ public class Person implements restresource.RestModel {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-	
-	public static String collectionName() {
-		return "people";
-	}
-	
-	public static String getSite() {
-		return "http://localhost:4567/";
 	}
 }

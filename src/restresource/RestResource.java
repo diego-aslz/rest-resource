@@ -14,10 +14,16 @@ import com.google.gson.Gson;
 
 public class RestResource {
 	public static final int NOT_FOUND = 404;
+	private static String format = "json";
 
 	public static Object find(Object id, Class<?> klass) {
-		HttpURLConnection connection = openConnection("GET", site(klass) +
-				collectionName(klass) + "/" + id + ".json");
+		StringBuilder sb = new StringBuilder(site(klass)).
+				append(collectionName(klass)).
+				append("/").
+				append(id).
+				append(".").
+				append(format);
+		HttpURLConnection connection = openConnection("GET",  sb.toString());
 
 		String body = null;
 		try {
@@ -27,12 +33,12 @@ public class RestResource {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-	
+
 			body = extractResponseBody(connection);
 		} finally {
 			connection.disconnect();
 		}
-		
+
 		Gson gson = new Gson();
 		@SuppressWarnings("unchecked")
 		Map<String, Object> r = gson.fromJson("{" + body + "}", Map.class);
@@ -78,13 +84,17 @@ public class RestResource {
 		} catch (ProtocolException e1) {
 			e1.printStackTrace();
 		} 
-		connection.setRequestProperty("Content-Type", "application/json");
+		connection.setRequestProperty("Content-Type", "application/" + format);
 		return connection;
 	}
 
 	public static List<Object> all(Class<?> klass, String... params) {
-		HttpURLConnection connection = openConnection("GET", site(klass) +
-				collectionName(klass) + ".json", params);
+		StringBuilder sb = new StringBuilder(site(klass)).
+				append(collectionName(klass)).
+				append(".").
+				append(format);
+		HttpURLConnection connection = openConnection("GET", sb.toString(),
+				params);
 		String body = null;
 		try {
 			body = extractResponseBody(connection);
@@ -98,7 +108,7 @@ public class RestResource {
 			l.set(i, gson.fromJson(gson.toJson(l.get(i)), klass));
 		return l;
 	}
-	
+
 	protected static String site(Class<?> klass) {
 		return invokeClassMethod(klass, "getSite", null);
 	}
