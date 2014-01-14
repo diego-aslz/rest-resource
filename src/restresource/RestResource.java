@@ -28,6 +28,16 @@ public class RestResource {
 	public static final int RESOURCE_INVALID = 422;
 	private static String format = "json";
 
+	/**
+	 * Loads a single object from the RESTful web service. It's the SHOW action.
+	 * @param id Id of the desired object.
+	 * @param klass Class of the desired object. Will be used to determine
+	 * the collection name to compose the URL.
+	 * @return The loaded object.
+	 * @throws RestResourceException When something goes wrong while
+	 * communicating with the server, handling the status of the response or
+	 * parsing its body.
+	 */
 	public static <T> T find(Object id, Class<T> klass) throws RestResourceException {
 		StringBuilder sb = new StringBuilder(site(klass)).
 				append(collectionName(klass)).
@@ -44,6 +54,16 @@ public class RestResource {
 		return gson.fromJson(gson.toJson(r.get("person")), klass);
 	}
 
+	/**
+	 * Loads a list of objects from the RESTful web service. It's the INDEX action.
+	 * @param klass Class of the desired object. Will be used to determine
+	 * the collection name to compose the URL.
+	 * @param params The query parameters.
+	 * @return The loaded list.
+	 * @throws RestResourceException When something goes wrong while
+	 * communicating with the server, handling the status of the response or
+	 * parsing its body.
+	 */
 	public static <T> List<T> all(Class<T> klass, String... params) throws RestResourceException {
 		StringBuilder sb = new StringBuilder(site(klass)).
 				append(collectionName(klass)).

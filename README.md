@@ -52,6 +52,18 @@ Person p = RestResource.find(1, Person.class); // Will trigger GET http://localh
 List<Person> l = RestResource.all(Person.class); // Will trigger GET http://localhost:4567/people.json
 ```
 
+## Status Code Exceptions
+
+The methods that communicates with the server throw StatusException when certain
+HTTP status codes are received, so as:
+
+* 401: UnauthorizedAccessException;
+* 403: ForbiddenAccessException;
+* 404: ResourceNotFoundException;
+* 422: ResourceInvalidException;
+* 400..499: ClientException;
+* 500..599: ServerException.
+
 ## Dependencies
 
 In order to work, this project depends on:
