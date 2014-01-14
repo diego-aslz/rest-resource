@@ -13,3 +13,19 @@ get '/people.json' do
     "[{name: \"John\"},{name: \"Mary\"}]"
   end
 end
+
+get '/status_codes/:status.json' do
+  content_type :json
+  [
+    params[:status].to_i,
+    "",
+  ]
+end
+
+get '/status_codes.json' do
+  content_type :json
+  [
+    params[:status].to_i,
+    "[]",
+  ]
+end

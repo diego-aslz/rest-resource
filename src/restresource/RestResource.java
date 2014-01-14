@@ -11,13 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import restresource.exceptions.ClientException;
+import restresource.exceptions.ForbiddenAccessException;
+import restresource.exceptions.ResourceInvalidException;
 import restresource.exceptions.ResourceNotFoundException;
 import restresource.exceptions.RestResourceException;
+import restresource.exceptions.ServerException;
+import restresource.exceptions.UnauthorizedAccessException;
 
 import com.google.gson.Gson;
 
 public class RestResource {
 	public static final int NOT_FOUND = 404;
+	public static final int UNAUTHORIZED_ACCESS = 401;
+	public static final int FORBIDDEN_ACCESS = 403;
+	public static final int RESOURCE_INVALID = 422;
 	private static String format = "json";
 
 	public static <T> T find(Object id, Class<T> klass) throws RestResourceException {
@@ -66,8 +74,19 @@ public class RestResource {
 	protected static void handleResponseCode(HttpURLConnection connection)
 			throws RestResourceException {
 		try {
-			if (connection.getResponseCode() == NOT_FOUND)
-				throw new ResourceNotFoundException();
+			int status = connection.getResponseCode();
+			if (status == UNAUTHORIZED_ACCESS)
+				throw new UnauthorizedAccessException(status);
+			else if (status == FORBIDDEN_ACCESS)
+				throw new ForbiddenAccessException(status);
+			else if (status == RESOURCE_INVALID)
+				throw new ResourceInvalidException(status);
+			else if (status == NOT_FOUND)
+				throw new ResourceNotFoundException(status);
+			else if (status >= 400 && status < 500)
+				throw new ClientException(status);
+			else if (status >= 500 && status < 600)
+				throw new ServerException(status);
 		} catch (IOException e) {
 			throw new RestResourceException("Error while reading the response"
 					+ " code", e);

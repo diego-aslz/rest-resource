@@ -1,6 +1,6 @@
 package test.support;
 
-public class ImaginaryResource {
+public class StatusCode {
 	public static String getSite() {
 		return "http://localhost:4567/";
 	}
