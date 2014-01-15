@@ -6,7 +6,7 @@ public class StatusException extends RestResourceException {
 	protected int status;
 
 	public StatusException(int status) {
-		super();
+		super("Unexpected status received: " + status);
 		this.status = status;
 	}
 

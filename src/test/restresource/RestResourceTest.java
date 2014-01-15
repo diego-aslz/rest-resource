@@ -27,7 +27,7 @@ public class RestResourceTest {
 		assertEquals("John", p.getName());
 	}
 
-	private void testRailseStatusException(Proc block) {
+	private void testRaiseStatusException(Proc block) {
 		for (int i = 400; i < 600; i++) {
 			StatusException ce = null;
 			try {
@@ -68,7 +68,7 @@ public class RestResourceTest {
 
 	@Test
 	public void testFindRaisesCorrectException() {
-		testRailseStatusException(new Proc() {
+		testRaiseStatusException(new Proc() {
 			@Override
 			public void call(Object... args) {
 				RestResource.find(args[0], StatusCode.class);
@@ -78,10 +78,20 @@ public class RestResourceTest {
 
 	@Test
 	public void testAllRaisesCorrectException() {
-		testRailseStatusException(new Proc() {
+		testRaiseStatusException(new Proc() {
 			@Override
 			public void call(Object... args) {
 				RestResource.all(StatusCode.class, "status=" + args[0]);
+			}
+		});
+	}
+
+	@Test
+	public void testCreateRaisesCorrectException() {
+		testRaiseStatusException(new Proc() {
+			@Override
+			public void call(Object... args) {
+				RestResource.save(new StatusCode((Integer) args[0]));
 			}
 		});
 	}
@@ -105,5 +115,20 @@ public class RestResourceTest {
 	public void testCollectionName() {
 		assertEquals("people", RestResource.collectionName(Person.class));
 		assertEquals("string_builders", RestResource.collectionName(StringBuilder.class));
+	}
+
+	@Test
+	public void testElementName() {
+		assertEquals("person", RestResource.elementName(Person.class));
+		assertEquals("string_builder", RestResource.elementName(StringBuilder.class));
+	}
+
+	@Test
+	public void testCreate() {
+		Person p = new Person();
+		p.setName("Test");
+		p = RestResource.save(p);
+		assertEquals(1, p.getId());
+		assertEquals("Test", p.getName());
 	}
 }

@@ -3,6 +3,7 @@ package test.support;
 import com.google.gson.annotations.Expose;
 
 public class Person {
+	int id;
 	@Expose
 	String name;
 
@@ -20,6 +21,14 @@ public class Person {
 	 */
 	public static String collectionName() {
 		return "people";
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getName() {

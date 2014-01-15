@@ -47,9 +47,13 @@ public class Person {
 With that in place, it's possible to call:
 
 ```java
-Person p = RestResource.find(1, Person.class); // Will trigger GET http://localhost:4567/people/1.json
+Person p = RestResource.find(1, Person.class); // Triggers GET http://localhost:4567/people/1.json
 
-List<Person> l = RestResource.all(Person.class); // Will trigger GET http://localhost:4567/people.json
+List<Person> l = RestResource.all(Person.class); // Triggers GET http://localhost:4567/people.json
+
+p = Person.new();
+p.setName("John");
+p = RestResource.save(p); // Triggers POST http://localhost:4567/people.json
 ```
 
 ## Status Code Exceptions
