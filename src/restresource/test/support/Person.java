@@ -1,4 +1,4 @@
-package test.support;
+package restresource.test.support;
 
 import com.google.gson.annotations.Expose;
 

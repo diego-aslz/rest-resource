@@ -1,4 +1,4 @@
-package test.restresource;
+package restresource.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -16,9 +16,9 @@ import restresource.exceptions.ResourceNotFoundException;
 import restresource.exceptions.ServerException;
 import restresource.exceptions.StatusException;
 import restresource.exceptions.UnauthorizedAccessException;
+import restresource.test.support.Person;
+import restresource.test.support.StatusCode;
 import restresource.utils.Proc;
-import test.support.Person;
-import test.support.StatusCode;
 
 public class RestResourceTest {
 	@Test
@@ -109,18 +109,6 @@ public class RestResourceTest {
 		List<Person> l = RestResource.all(Person.class, "name=John", "test=true");
 		assertEquals(1, l.size());
 		assertEquals("John", l.get(0).getName());
-	}
-
-	@Test
-	public void testCollectionName() {
-		assertEquals("people", RestResource.collectionName(Person.class));
-		assertEquals("string_builders", RestResource.collectionName(StringBuilder.class));
-	}
-
-	@Test
-	public void testElementName() {
-		assertEquals("person", RestResource.elementName(Person.class));
-		assertEquals("string_builder", RestResource.elementName(StringBuilder.class));
 	}
 
 	@Test

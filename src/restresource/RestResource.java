@@ -1,9 +1,11 @@
 package restresource;
 
+import static restresource.utils.RestUtils.collectionName;
+import static restresource.utils.RestUtils.elementName;
+import static restresource.utils.RestUtils.site;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -224,39 +226,5 @@ public class RestResource {
 				}
 		}
 		return connection;
-	}
-
-	public static String site(Class<?> klass) {
-		try {
-			return invokeClassMethod(klass, "getSite");
-		} catch (Exception e) {
-			throw new RestResourceException("Error while trying to access " +
-					klass.getName() + ".getSite().", e);
-		}
-	}
-
-	public static String collectionName(Class<?> klass) {
-		try {
-			return invokeClassMethod(klass, "collectionName");
-		} catch (Exception e) {
-			return elementName(klass) + "s";
-		}
-	}
-
-	public static String elementName(Class<?> klass) {
-		try {
-			return invokeClassMethod(klass, "elementName");
-		} catch (Exception e) {
-			return klass.getSimpleName().replaceAll("([a-z])([A-Z])", "$1_$2").
-					toLowerCase();
-		}
-	}
-
-	protected static String invokeClassMethod(Class<?> klass, String method,
-			Object... args) throws NoSuchMethodException, IllegalAccessException,
-			InvocationTargetException {
-		Method m = klass.getMethod(method);
-		m.setAccessible(true);
-		return (String) m.invoke(klass, args);
 	}
 }
