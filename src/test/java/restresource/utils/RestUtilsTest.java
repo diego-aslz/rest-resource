@@ -1,4 +1,4 @@
-package restresource.test.utils;
+package restresource.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -6,9 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import restresource.exceptions.RestResourceException;
-import restresource.test.support.Person;
-import restresource.test.support.StatusCode;
-import restresource.utils.RestUtils;
+import restresource.support.Person;
+import restresource.support.StatusCode;
 
 public class RestUtilsTest {
 

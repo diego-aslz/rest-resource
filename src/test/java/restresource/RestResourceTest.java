@@ -1,4 +1,4 @@
-package restresource.test;
+package restresource;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import restresource.RestResource;
 import restresource.exceptions.ClientException;
 import restresource.exceptions.ForbiddenAccessException;
 import restresource.exceptions.ResourceInvalidException;
@@ -16,8 +15,8 @@ import restresource.exceptions.ResourceNotFoundException;
 import restresource.exceptions.ServerException;
 import restresource.exceptions.StatusException;
 import restresource.exceptions.UnauthorizedAccessException;
-import restresource.test.support.Person;
-import restresource.test.support.StatusCode;
+import restresource.support.Person;
+import restresource.support.StatusCode;
 import restresource.utils.Proc;
 
 public class RestResourceTest {
