@@ -19,7 +19,7 @@ import restresource.support.Person;
 import restresource.support.StatusCode;
 import restresource.utils.Proc;
 
-public class RestResourceTest {
+public class RestResourceIntegrationTest {
 	@Test
 	public void testFind() {
 		Person p = RestResource.find(1, Person.class);

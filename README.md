@@ -107,11 +107,19 @@ The dependencies are managed via Maven.
 * Write your code and **test it**;
 * Make a pull request.
 
-Please use TDD. In order to test, you will need to run the the fake web service
-within the `server` directory like this:
+Please use TDD. In order to test, you will need to install [Ruby][1], [Bundler][2]
+and [Sinatra][3] . To install Sinatra (and any other needed rubygems),
+with Ruby and Bundler already installed, run:
 
-```
-ruby server/fake_server.rb
+```sh
+cd server
+bundle install
 ```
 
-This fake server is built on [Sinatra](http://www.sinatrarb.com/).
+The integrations tests will run the server in the `pre-integration-test` phase
+and shut it down in `post-integration-test`. Right now, it only works in *nix
+systems but pull-requests are accepted.
+
+[1]: https://www.ruby-lang.org
+[2]: http://bundler.io/
+[3]: http://www.sinatrarb.com/

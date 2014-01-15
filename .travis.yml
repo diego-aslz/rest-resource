@@ -1,0 +1,10 @@
+language: java
+before_script:
+  - cd ./server/ && bundle install && cd ..
+script:
+  - mvn verify
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+  - openjdk6
