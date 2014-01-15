@@ -1,4 +1,4 @@
-package restresource.test.support;
+package restresource.support;
 
 import restresource.Id;
 
