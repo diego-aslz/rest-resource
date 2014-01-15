@@ -18,6 +18,7 @@ import restresource.exceptions.UnauthorizedAccessException;
 import restresource.support.Person;
 import restresource.support.StatusCode;
 import restresource.utils.Proc;
+import static restresource.support.TestUtils.assertRaises;
 
 public class RestResourceIntegrationTest {
 	@Test
@@ -127,5 +128,21 @@ public class RestResourceIntegrationTest {
 		p = RestResource.save(p);
 		assertEquals(1, p.getId());
 		assertEquals("Test", p.getName());
+	}
+
+	@Test
+	public void testDelete() {
+		final StatusCode sc = new StatusCode();
+		sc.setCustomId(1);
+		assertRaises(ResourceNotFoundException.class, new Proc() {
+			@Override
+			public void call(Object... args) {
+				RestResource.delete(sc);
+			}
+		});
+
+		Person p = new Person();
+		p.setId(1);
+		RestResource.delete(p);
 	}
 }

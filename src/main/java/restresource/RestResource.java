@@ -119,6 +119,18 @@ public class RestResource {
 		return loadElement(klass, body, gson);
 	}
 
+	public static void delete(Object o) throws RestResourceException {
+		Class<?> klass = o.getClass();
+		StringBuilder sb = new StringBuilder(site(klass)).
+				append(collectionName(klass)).
+				append("/").
+				append(id(o)).
+				append(".").
+				append(format);
+
+		makeTheCall("DELETE", sb.toString());
+	}
+
 	protected static <T> T loadElement(Class<T> klass, String body, Gson gson)
 			throws RestResourceException {
 		try {

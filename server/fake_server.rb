@@ -51,3 +51,9 @@ put '/people/1.json' do
 
   [204, nil.to_json]
 end
+
+delete '/people/1.json' do
+  content_type :json
+
+  [204, nil.to_json]
+end
