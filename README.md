@@ -1,4 +1,3 @@
-
 # Rest Resource
 
 Rest Resource is a framework wich whose goal is to provide an easy and simple
@@ -10,7 +9,7 @@ However, some of them are (those explained below), and can be already used.
 
 ## Mapping RESTful resources as models
 
-To make a class behave like an RESTful resource model, it needs to implement
+To make a class behave like a RESTful resource model, it needs to implement
 some methods:
 
 ```java
