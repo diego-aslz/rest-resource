@@ -1,6 +1,6 @@
 language: java
 before_script:
-  - cd ./server/ && bundle install
+  - cd ./server/ && bundle install && cd ..
 script:
   - mvn verify
 jdk:
