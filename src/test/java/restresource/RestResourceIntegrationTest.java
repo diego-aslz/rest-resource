@@ -126,6 +126,6 @@ public class RestResourceIntegrationTest {
 		p.setName("Test");
 		p = RestResource.save(p);
 		assertEquals(1, p.getId());
-		assertEquals("Test Updated", p.getName());
+		assertEquals("Test", p.getName());
 	}
 }

@@ -49,7 +49,5 @@ end
 put '/people/1.json' do
   content_type :json
 
-  pars = JSON.parse request.body.read
-  pars["person"]['name'] += " Updated"
-  [200, pars.to_json]
+  [204, nil.to_json]
 end

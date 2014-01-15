@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 public class RestResource {
+	public static final int NO_CONTENT = 204;
 	public static final int NOT_FOUND = 404;
 	public static final int UNAUTHORIZED_ACCESS = 401;
 	public static final int FORBIDDEN_ACCESS = 403;
@@ -113,6 +114,8 @@ public class RestResource {
 			body = makeTheCall("PUT", path, entity);
 		}
 
+		if (body == null)
+			return o;
 		return loadElement(klass, body, gson);
 	}
 
@@ -147,14 +150,15 @@ public class RestResource {
 			String... params) throws RestResourceException {
 		HttpURLConnection connection = openConnection(method, path, params);
 		try {
-			handleResponseCode(connection);
+			if (handleResponseCode(connection) == NO_CONTENT)
+				return null;;
 			return extractResponseBody(connection);
 		} finally {
 			connection.disconnect();
 		}
 	}
 
-	protected static void handleResponseCode(HttpURLConnection connection)
+	protected static int handleResponseCode(HttpURLConnection connection)
 			throws RestResourceException {
 		try {
 			int status = connection.getResponseCode();
@@ -170,6 +174,7 @@ public class RestResource {
 				throw new ClientException(status);
 			else if (status >= 500 && status < 600)
 				throw new ServerException(status);
+			return status;
 		} catch (IOException e) {
 			throw new RestResourceException("Error while reading the response"
 					+ " code", e);
