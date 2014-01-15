@@ -55,6 +55,7 @@ p = Person.new();
 p.setName("John");
 p = RestResource.save(p); // Triggers POST http://localhost:4567/people.json
 p = RestResource.save(p); // Triggers PUT http://localhost:4567/people/:PERSON_ID.json
+RestResource.delete(p);   // Triggers DELETE http://localhost:4567/people/:PERSON_ID.json
 ```
 
 ## The ID field
