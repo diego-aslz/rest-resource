@@ -1,11 +1,10 @@
 language: java
 test:
-  - mvn clean install
+  - mvn verify
 before_script:
   - cd ./server/ && bundle install
 jdk:
   - oraclejdk8
   - oraclejdk7
-  - openjdk8
   - openjdk7
   - openjdk6
