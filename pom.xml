@@ -24,8 +24,9 @@
 						<phase>pre-integration-test</phase>
 						<configuration>
 							<target>
-								<exec executable="ruby" spawn="true">
-									<arg value="./server/fake_server.rb" />
+								<exec executable="sh">
+									<arg value="-c" />
+									<arg value="echo 'starting server' &amp; ruby ./server/fake_server.rb &amp; sleep 5 &amp;" />
 								</exec>
 							</target>
 						</configuration>
@@ -41,7 +42,7 @@
 							<target>
 								<exec executable="sh">
 									<arg value="-c" />
-									<arg value=" ps ax | grep -i 'ruby' | grep fake_server | grep -v grep | awk '{print $1}' | xargs kill -SIGTERM" />
+									<arg value="ps ax | grep -i ruby | grep fake_server | grep -v grep | awk '{print $1}' | xargs kill -SIGTERM" />
 								</exec>
 							</target>
 						</configuration>
