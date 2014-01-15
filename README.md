@@ -107,17 +107,17 @@ The dependencies are managed via Maven.
 * Write your code and **test it**;
 * Make a pull request.
 
-Please use TDD. In order to test, you will need to install [ruby][1], [bundler][2]
-and [sinatra][3]. To install sinatra, with ruby and bundler already installed,
-run:
+Please use TDD. In order to test, you will need to install [Ruby][1], [Bundler][2]
+and [Sinatra][3] . To install Sinatra (and any other needed rubygems),
+with Ruby and Bundler already installed, run:
 
 ```sh
 cd server
 bundle install
 ```
 
-The integrations tests will run the server in the `integration-test` phase
-and shut it down when tests are done. Right now, it only works in *nix
+The integrations tests will run the server in the `pre-integration-test` phase
+and shut it down in `post-integration-test`. Right now, it only works in *nix
 systems but pull-requests are accepted.
 
 [1]: https://www.ruby-lang.org
