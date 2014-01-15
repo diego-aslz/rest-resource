@@ -2,6 +2,7 @@ package restresource;
 
 import static restresource.utils.RestUtils.collectionName;
 import static restresource.utils.RestUtils.elementName;
+import static restresource.utils.RestUtils.id;
 import static restresource.utils.RestUtils.site;
 
 import java.io.DataOutputStream;
@@ -12,6 +13,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import restresource.exceptions.ClientException;
@@ -88,15 +90,28 @@ public class RestResource {
 	public static <T> T save(T o) throws RestResourceException {
 		@SuppressWarnings("unchecked")
 		Class<T> klass = (Class<T>) o.getClass();
-		StringBuilder sb = new StringBuilder(site(klass)).
-				append(collectionName(klass)).
-				append(".").
-				append(format);
 
 		Gson gson = new Gson();
-		String body = makeTheCall("POST", sb.toString(),
-				new StringBuilder("{\"").append(elementName(klass)).append("\"").
-				append(": ").append(gson.toJson(o)).append("}").toString());
+		String entity = new StringBuilder("{\"").append(elementName(klass)).
+				append("\"").append(": ").append(gson.toJson(o)).append("}").
+				toString();
+		String body = null;
+		Object id = id(o);
+		if (id == null || (id instanceof Integer && (Integer)id <= 0)) {
+			String path = new StringBuilder(site(klass)).
+					append(collectionName(klass)).
+					append(".").
+					append(format).toString();
+			body = makeTheCall("POST", path, entity);
+		} else {
+			String path = new StringBuilder(site(klass)).
+					append(collectionName(klass)).
+					append("/").
+					append(id).
+					append(".").
+					append(format).toString();
+			body = makeTheCall("PUT", path, entity);
+		}
 
 		return loadElement(klass, body, gson);
 	}
@@ -162,7 +177,7 @@ public class RestResource {
 	}
 
 	protected static String extractResponseBody(HttpURLConnection connection)
-			throws RestResourceException{
+			throws RestResourceException {
 		Scanner scan = null;
 		try {
 			scan = new Scanner(connection.getInputStream()).useDelimiter("\\A");
@@ -172,8 +187,14 @@ public class RestResource {
 					append(connection.getRequestMethod()).append(" ").
 					append(connection.getURL()).append(").").toString(), e);
 		}
-		String body = scan.next();
-		return body;
+		try {
+			return scan.next();
+		} catch(NoSuchElementException e) {
+			throw new RestResourceException(new StringBuilder("Error while ").
+					append("reading server's response (from ").
+					append(connection.getRequestMethod()).append(" ").
+					append(connection.getURL()).append(").").toString(), e);
+		}
 	}
 
 	protected static HttpURLConnection openConnection(String method, String path,
@@ -203,8 +224,9 @@ public class RestResource {
 					append("connection to ").
 					append(url.toString()).toString(), e);
 		}
-		connection.setDoOutput(true); 
-		connection.setInstanceFollowRedirects(false); 
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.setInstanceFollowRedirects(false);
 		try {
 			connection.setRequestMethod(method);
 		} catch (ProtocolException e) {

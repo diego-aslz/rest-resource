@@ -119,4 +119,14 @@ public class RestResourceTest {
 		assertEquals(1, p.getId());
 		assertEquals("Test", p.getName());
 	}
+
+	@Test
+	public void testUpdate() {
+		Person p = new Person();
+		p.setId(1);
+		p.setName("Test");
+		p = RestResource.save(p);
+		assertEquals(1, p.getId());
+		assertEquals("Test Updated", p.getName());
+	}
 }

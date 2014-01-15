@@ -1,8 +1,10 @@
 package restresource.utils;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import restresource.Id;
 import restresource.exceptions.RestResourceException;
 
 public final class RestUtils {
@@ -16,7 +18,7 @@ public final class RestUtils {
 	 */
 	public static String site(Class<?> klass) throws RestResourceException {
 		try {
-			return invokeClassMethod(klass, "getSite");
+			return invokeMethod(klass, "getSite");
 		} catch (Exception e) {
 			throw new RestResourceException("Error while trying to access " +
 					klass.getName() + ".getSite().", e);
@@ -34,7 +36,7 @@ public final class RestUtils {
 	 */
 	public static String collectionName(Class<?> klass) {
 		try {
-			return invokeClassMethod(klass, "collectionName");
+			return invokeMethod(klass, "collectionName");
 		} catch (Exception e) {
 			return elementName(klass) + "s";
 		}
@@ -50,14 +52,50 @@ public final class RestUtils {
 	 */
 	public static String elementName(Class<?> klass) {
 		try {
-			return invokeClassMethod(klass, "elementName");
+			return invokeMethod(klass, "elementName");
 		} catch (Exception e) {
 			return klass.getSimpleName().replaceAll("([a-z])([A-Z])", "$1_$2").
 					toLowerCase();
 		}
 	}
 
-	protected static String invokeClassMethod(Class<?> klass, String method,
+	/**
+	 * Finds the id of the an object. If the object has some field with the
+	 * {@link Id} annotation, this field will be used. Otherwise, a field with
+	 * the name 'id' will be used. In the later case, if there's no 'id' field,
+	 * an exception will be raised.
+	 * @param element
+	 * @return
+	 * @throws RestResourceException
+	 */
+	public static Object id(Object element) throws RestResourceException {
+		Field idField = null;
+		Field annotatedField = null;
+		for (Field f : element.getClass().getDeclaredFields()) {
+			if (f.isAnnotationPresent(Id.class)) {
+				annotatedField = f;
+				break;
+			}
+			if (f.getName().equals("id"))
+				idField = f;
+		}
+		if (annotatedField != null)
+			idField = annotatedField;
+		if (idField == null)
+			throw new RestResourceException("Element " + element + " should "
+					+ "have a Field annotated with @restresource.Id or with the"
+					+ " name 'id'.");
+		try {
+			idField.setAccessible(true);
+			return idField.get(element);
+		} catch (Exception e) {
+			throw new RestResourceException("Error while trying to access id "
+					+ "field (" + idField.getName() + ") for element " +
+					element, e);
+		}
+	}
+
+	protected static String invokeMethod(Class<?> klass, String method,
 			Object... args) throws NoSuchMethodException, IllegalAccessException,
 			InvocationTargetException {
 		Method m = klass.getMethod(method);

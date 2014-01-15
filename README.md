@@ -14,6 +14,7 @@ some methods:
 
 ```java
 public class Person {
+  int id;
   @Expose
   String name;
 
@@ -53,6 +54,29 @@ List<Person> l = RestResource.all(Person.class); // Triggers GET http://localhos
 p = Person.new();
 p.setName("John");
 p = RestResource.save(p); // Triggers POST http://localhost:4567/people.json
+p = RestResource.save(p); // Triggers PUT http://localhost:4567/people/:PERSON_ID.json
+```
+
+## The ID field
+
+In order to update resources, the class must have an 'id' field.
+
+```java
+public class Person {
+  int id;
+}
+```
+
+However, you may have another name for the id field. In this case, you need to
+explicitly mark the id field annotating it with `restresource.Id`.
+
+```java
+import restresource.Id;
+
+public class Person {
+  @Id
+  int code;
+}
 ```
 
 ## Status Code Exceptions
