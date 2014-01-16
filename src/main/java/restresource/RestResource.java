@@ -165,8 +165,9 @@ public class RestResource {
 			String... params) throws RestResourceException {
 		HttpURLConnection connection = openConnection(method, path, params);
 		try {
-			for (RequestListener l : requestListeners)
-				l.requestMade(method, path, params);
+			if (requestListeners != null)
+				for (RequestListener l : requestListeners)
+					l.requestMade(method, path, params);
 			if (handleResponseCode(connection) == NO_CONTENT)
 				return null;;
 			return extractResponseBody(connection);
