@@ -1,9 +1,16 @@
 package restresource.support;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import restresource.RequestListener;
+import restresource.RestResource;
 import restresource.exceptions.ClientException;
 import restresource.exceptions.ForbiddenAccessException;
 import restresource.exceptions.ResourceInvalidException;
@@ -14,6 +21,8 @@ import restresource.exceptions.UnauthorizedAccessException;
 import restresource.utils.Proc;
 
 public class TestUtils {
+	private static List<Request> requests = new ArrayList<Request>();
+
 	public static void assertRaises(Class<? extends Exception> klass, Proc p,
 			Object... args) {
 		Exception exc = null;
@@ -64,5 +73,31 @@ public class TestUtils {
 				assertTrue("Exception raised should be ServerException",
 						ce instanceof ServerException);
 		}
+	}
+	
+	public static Request assertLastRequest(String method, String path,
+			String... params) {
+		Request req = lastRequest();
+		assertNotNull("Last request should not be null.", req);
+		assertEquals(     method, req.method());
+		assertEquals(     path,   req.path()  );
+		assertArrayEquals(params, req.params());
+		return req;
+	}
+
+	public static Request lastRequest() {
+		if (requests.isEmpty())
+			return null;
+		return requests.get(requests.size() - 1);
+	}
+
+	public static void recordRequests() {
+		requests.clear();
+		RestResource.addRequestListener(new RequestListener() {
+			@Override
+			public void requestMade(String method, String path, String... params) {
+				requests.add(new Request(method, path, params));
+			}
+		});
 	}
 }

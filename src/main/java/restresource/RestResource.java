@@ -11,6 +11,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -33,7 +34,9 @@ public class RestResource {
 	public static final int UNAUTHORIZED_ACCESS = 401;
 	public static final int FORBIDDEN_ACCESS = 403;
 	public static final int RESOURCE_INVALID = 422;
+
 	private static String format = "json";
+	private static List<RequestListener> requestListeners;
 
 	/**
 	 * Loads a single object from the RESTful web service. It's the SHOW action.
@@ -162,6 +165,8 @@ public class RestResource {
 			String... params) throws RestResourceException {
 		HttpURLConnection connection = openConnection(method, path, params);
 		try {
+			for (RequestListener l : requestListeners)
+				l.requestMade(method, path, params);
 			if (handleResponseCode(connection) == NO_CONTENT)
 				return null;;
 			return extractResponseBody(connection);
@@ -265,5 +270,11 @@ public class RestResource {
 				}
 		}
 		return connection;
+	}
+
+	public static void addRequestListener(RequestListener requestListener) {
+		if (requestListeners == null)
+			requestListeners = new ArrayList<RequestListener>();
+		requestListeners.add(requestListener);
 	}
 }
