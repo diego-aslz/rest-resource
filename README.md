@@ -1,6 +1,6 @@
 # Rest Resource
 
-Rest Resource is a framework wich whose goal is to provide an easy and simple
+Rest Resource is a framework whose goal is to provide an easy and simple
 way to access RESTful Web Services Apis like Rails. It's intended to work like
 ActiveResource.
 
@@ -87,7 +87,7 @@ List<Person> people = loadCollection(Person.class, response);
 
 // With parameters
 String response = RestResource.get(Person.class, new ParamGenerator("from",
-    "2014-01-01").append("to", "2014-01-08"), "hired");
+    "2014-01-01").append("to", "2014-01-08").map(), "hired");
 // Triggers GET http://localhost:4567/people/hired.json?to=2014-01-08&from=2014-01-01
 List<Person> people = loadCollection(Person.class, response);
 
