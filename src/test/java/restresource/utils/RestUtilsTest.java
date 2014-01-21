@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import restresource.exceptions.RestResourceException;
+import restresource.support.NoExtensionEntity;
 import restresource.support.Person;
 import restresource.support.StatusCode;
 
@@ -25,6 +26,13 @@ public class RestUtilsTest {
 		assertEquals("people.json", RestUtils.collectionPath(Person.class));
 		assertEquals("people/born/here.json", RestUtils.collectionPath(Person.class,
 				"born", "here"));
+
+		assertEquals("xml_entitys.xml", RestUtils.collectionPath(XmlEntity.class));
+		assertEquals("xml_entitys/born/here.xml", RestUtils.collectionPath(XmlEntity.class,
+				"born", "here"));
+
+		assertEquals("no_extension_entitys/test/this", RestUtils.collectionPath(
+				NoExtensionEntity.class, "test", "this"));
 	}
 
 	@Test
@@ -53,6 +61,10 @@ public class RestUtilsTest {
 		params.put("param", "true");
 		assertEquals("people/1/born/here.json?param=true",
 				RestUtils.elementPath(new Person(1), params, "born", "here"));
+
+		assertEquals("xml_entitys/7.xml", RestUtils.elementPath(new XmlEntity(7)));
+		assertEquals("no_extension_entitys/8",
+				RestUtils.elementPath(new NoExtensionEntity(8)));
 	}
 
 	@Test

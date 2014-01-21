@@ -1,6 +1,7 @@
 package restresource;
 
 import static restresource.utils.RestUtils.elementName;
+import static restresource.utils.RestUtils.format;
 import static restresource.utils.RestUtils.id;
 import static restresource.utils.RestUtils.urlFor;
 
@@ -34,7 +35,6 @@ public class RestResource {
 	public static final int FORBIDDEN_ACCESS = 403;
 	public static final int RESOURCE_INVALID = 422;
 
-	private static String format = "json";
 	private static List<RequestListener> requestListeners;
 
 	/**
@@ -107,14 +107,15 @@ public class RestResource {
 	public static String get(Object collectionOrElement,
 			Map<String, String> params, String... path)
 					throws RestResourceException {
-		return makeTheCall("GET", urlFor(collectionOrElement, params, path));
+		return makeTheCall("GET", urlFor(collectionOrElement, params, path),
+				format(collectionOrElement));
 	}
 
 	public static String post(Object collectionOrElement,
 			Map<String, String> params, Element element, String... path)
 					throws RestResourceException {
 		return makeTheCall("POST", urlFor(collectionOrElement, params, path),
-				parseElement(element));
+				parseElement(element), format(collectionOrElement));
 	}
 	public static String post(Object collectionOrElement,
 			Element element, String... path) throws RestResourceException {
@@ -134,7 +135,7 @@ public class RestResource {
 			Map<String, String> params, Element element, String... path)
 					throws RestResourceException {
 		return makeTheCall("PUT", urlFor(collectionOrElement, params, path),
-				parseElement(element));
+				parseElement(element), format(collectionOrElement));
 	}
 	public static String put(Object collectionOrElement,
 			Element element, String... path) throws RestResourceException {
@@ -153,7 +154,8 @@ public class RestResource {
 	public static String delete(Object collectionOrElement,
 			Map<String, String> params, String... path)
 					throws RestResourceException {
-		return makeTheCall("DELETE", urlFor(collectionOrElement, params, path));
+		return makeTheCall("DELETE", urlFor(collectionOrElement, params, path),
+				format(collectionOrElement));
 	}
 	public static String delete(Object collectionOrElement, String... path)
 			throws RestResourceException {
@@ -207,8 +209,8 @@ public class RestResource {
 	}
 
 	protected static String makeTheCall(String method, String path,
-			String body) throws RestResourceException {
-		HttpURLConnection connection = openConnection(method, path, body);
+			String body, String format) throws RestResourceException {
+		HttpURLConnection connection = openConnection(method, path, body, format);
 		try {
 			if (requestListeners != null)
 				for (RequestListener l : requestListeners)
@@ -220,9 +222,9 @@ public class RestResource {
 			connection.disconnect();
 		}
 	}
-	protected static String makeTheCall(String method, String path)
-			throws RestResourceException {
-		return makeTheCall(method, path, null);
+	protected static String makeTheCall(String method, String path,
+			String format) throws RestResourceException {
+		return makeTheCall(method, path, null, format);
 	}
 
 	protected static int handleResponseCode(HttpURLConnection connection)
@@ -272,7 +274,7 @@ public class RestResource {
 	}
 
 	protected static HttpURLConnection openConnection(String method, String path,
-			String body) throws RestResourceException {
+			String body, String format) throws RestResourceException {
 		URL url = null;
 		try {
 			url = new URL(path);
@@ -312,9 +314,9 @@ public class RestResource {
 		}
 		return connection;
 	}
-	protected static HttpURLConnection openConnection(String method, String path)
-			throws RestResourceException {
-		return openConnection(method, path, null);
+	protected static HttpURLConnection openConnection(String method, String path,
+			String format) throws RestResourceException {
+		return openConnection(method, path, null, format);
 	}
 
 	public static void addRequestListener(RequestListener requestListener) {

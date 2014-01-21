@@ -52,7 +52,9 @@ public final class RestUtils {
 		StringBuilder sb = new StringBuilder(collectionName(klass));
 		for (String path : paths)
 			sb.append("/").append(path);
-		sb.append(".").append(format(klass));
+		String extension = extension(klass);
+		if (extension != null && !extension.isEmpty())
+			sb.append(".").append(extension);
 		if (params != null) {
 			String sep = "?";
 			for (String key : params.keySet()) {
@@ -156,8 +158,16 @@ public final class RestUtils {
 			return elementUrl(collectionOrElement, params, path);
 	}
 
-	protected static String format(Class<?> klass) {
+	public static String format(Object collectionOrElement) {
 		return "json";
+	}
+
+	protected static String extension(Class<?> klass) {
+		try {
+			return invokeMethod(klass, "extension");
+		} catch (Exception e) {
+			return format(klass);
+		}
 	}
 
 	protected static String invokeMethod(Class<?> klass, String method,
