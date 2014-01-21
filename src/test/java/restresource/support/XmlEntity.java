@@ -1,4 +1,4 @@
-package restresource.utils;
+package restresource.support;
 
 import restresource.Element;
 

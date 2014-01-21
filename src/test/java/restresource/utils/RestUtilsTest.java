@@ -12,6 +12,7 @@ import restresource.exceptions.RestResourceException;
 import restresource.support.NoExtensionEntity;
 import restresource.support.Person;
 import restresource.support.StatusCode;
+import restresource.support.XmlEntity;
 
 public class RestUtilsTest {
 
