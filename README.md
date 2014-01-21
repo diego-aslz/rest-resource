@@ -78,7 +78,7 @@ public class Person implements Element {
 
 It's possible to invoke custom URLs. In these cases, the response will
 be returned as String and you will have to handle it by yourself. Don't worry,
-there is some helper methods to do it for you:
+there are some helper methods to do it for you:
 
 ```java
 String response = RestResource.get(Person.class, "hired");
@@ -87,7 +87,7 @@ List<Person> people = loadCollection(Person.class, response);
 
 // With parameters
 String response = RestResource.get(Person.class, new ParamGenerator("from",
-    "2014-01-01").append("to", "2014-01-08"), "hired")
+    "2014-01-01").append("to", "2014-01-08"), "hired");
 // Triggers GET http://localhost:4567/people/hired.json?to=2014-01-08&from=2014-01-01
 List<Person> people = loadCollection(Person.class, response);
 
