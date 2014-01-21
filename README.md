@@ -10,13 +10,15 @@ However, some of them are (those explained below), and can be already used.
 ## Mapping RESTful resources as models
 
 To make a class behave like a RESTful resource model, it needs to implement
-some methods:
+`restresource.Element`. Also, it needs to implement some static methods:
 
 ```java
-public class Person {
+public class Person implements restresource.Element {
   int id;
   @Expose
   String name;
+
+  // Constructors, getters and setters (not really needed)
 
   /**
    * Determines the address where the RESTful Web Service is.
@@ -33,14 +35,6 @@ public class Person {
   public static String collectionName() {
     return "people";
   }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 }
 ```
 
@@ -54,16 +48,16 @@ List<Person> l = RestResource.all(Person.class); // Triggers GET http://localhos
 p = Person.new();
 p.setName("John");
 p = RestResource.save(p); // Triggers POST http://localhost:4567/people.json
-p = RestResource.save(p); // Triggers PUT http://localhost:4567/people/:PERSON_ID.json
-RestResource.delete(p);   // Triggers DELETE http://localhost:4567/people/:PERSON_ID.json
+p = RestResource.save(p); // Triggers PUT http://localhost:4567/people/:ID.json
+RestResource.destroy(p);  // Triggers DELETE http://localhost:4567/people/:ID.json
 ```
 
 ## The ID field
 
-In order to update resources, the class must have an 'id' field.
+In order to access single resources, the class must have an 'id' field.
 
 ```java
-public class Person {
+public class Person implements Element {
   int id;
 }
 ```
@@ -74,11 +68,40 @@ explicitly mark the id field annotating it with `restresource.Id`.
 ```java
 import restresource.Id;
 
-public class Person {
+public class Person implements Element {
   @Id
   int code;
 }
 ```
+
+## Custom methods
+
+It's possible to invoke custom URLs. In these cases, the response will
+be returned as String and you will have to handle it by yourself. Don't worry,
+there is some helper methods to do it for you:
+
+```java
+String response = RestResource.get(Person.class, "hired");
+// Triggers GET http://localhost:4567/people/hired.json
+List<Person> people = loadCollection(Person.class, response);
+
+// With parameters
+String response = RestResource.get(Person.class, new ParamGenerator("from",
+    "2014-01-01").append("to", "2014-01-08"), "hired")
+// Triggers GET http://localhost:4567/people/hired.json?to=2014-01-08&from=2014-01-01
+List<Person> people = loadCollection(Person.class, response);
+
+RestResource.post(Person.class, "hire", new Person(1, "John"));
+// Triggers POST http://localhost:4567/people/hire.json with the object in the body as JSON
+
+RestResource.put(new Person(1), "promote");
+// Triggers PUT http://localhost:4567/people/1/promote.json
+
+RestResource.delete(new Person(1), "fire");
+// Triggers DELETE http://localhost:4567/people/1/fire.json
+```
+
+If you want to see more examples, take a look at the test classes.
 
 ## Status Code Exceptions
 

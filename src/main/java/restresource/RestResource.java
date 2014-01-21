@@ -1,9 +1,8 @@
 package restresource;
 
-import static restresource.utils.RestUtils.collectionName;
 import static restresource.utils.RestUtils.elementName;
 import static restresource.utils.RestUtils.id;
-import static restresource.utils.RestUtils.site;
+import static restresource.utils.RestUtils.urlFor;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -49,16 +48,7 @@ public class RestResource {
 	 * parsing its body.
 	 */
 	public static <T> T find(Object id, Class<T> klass) throws RestResourceException {
-		StringBuilder sb = new StringBuilder(site(klass)).
-				append(collectionName(klass)).
-				append("/").
-				append(id).
-				append(".").
-				append(format);
-
-		String body = makeTheCall("GET", sb.toString());
-
-		return loadElement(klass, body, new Gson());
+		return loadElement(klass, get(klass, id.toString()), new Gson());
 	}
 
 	/**
@@ -71,16 +61,12 @@ public class RestResource {
 	 * communicating with the server, handling the status of the response or
 	 * parsing its body.
 	 */
-	public static <T> List<T> all(Class<T> klass, String... params)
+	public static <T> List<T> all(Class<T> klass, Map<String, String> params)
 			throws RestResourceException {
-		StringBuilder sb = new StringBuilder(site(klass)).
-				append(collectionName(klass)).
-				append(".").
-				append(format);
-
-		String body = makeTheCall("GET", sb.toString(), params);
-
-		return loadCollection(klass, body, new Gson());
+		return loadCollection(klass, get(klass, params), new Gson());
+	}
+	public static <T> List<T> all(Class<T> klass) {
+		return all(klass, null);
 	}
 
 	/**
@@ -91,30 +77,17 @@ public class RestResource {
 	 * @throws RestResourceException If a known error occurs during the saving
 	 * process.
 	 */
-	public static <T> T save(T o) throws RestResourceException {
+	public static <T extends Element> T save(T o) throws RestResourceException {
 		@SuppressWarnings("unchecked")
 		Class<T> klass = (Class<T>) o.getClass();
 
 		Gson gson = new Gson();
-		String entity = new StringBuilder("{\"").append(elementName(klass)).
-				append("\"").append(": ").append(gson.toJson(o)).append("}").
-				toString();
 		String body = null;
 		Object id = id(o);
 		if (id == null || (id instanceof Integer && (Integer)id <= 0)) {
-			String path = new StringBuilder(site(klass)).
-					append(collectionName(klass)).
-					append(".").
-					append(format).toString();
-			body = makeTheCall("POST", path, entity);
+			body = post(klass, o);
 		} else {
-			String path = new StringBuilder(site(klass)).
-					append(collectionName(klass)).
-					append("/").
-					append(id).
-					append(".").
-					append(format).toString();
-			body = makeTheCall("PUT", path, entity);
+			body = put(klass, o, id.toString());
 		}
 
 		if (body == null)
@@ -122,16 +95,69 @@ public class RestResource {
 		return loadElement(klass, body, gson);
 	}
 
-	public static void delete(Object o) throws RestResourceException {
-		Class<?> klass = o.getClass();
-		StringBuilder sb = new StringBuilder(site(klass)).
-				append(collectionName(klass)).
-				append("/").
-				append(id(o)).
-				append(".").
-				append(format);
+	public static void destroy(Object o) throws RestResourceException {
+		delete(o);
+	}
 
-		makeTheCall("DELETE", sb.toString());
+	public static String get(Object collectionOrElement, String... path)
+			throws RestResourceException {
+		return get(collectionOrElement, null, path);
+	}
+
+	public static String get(Object collectionOrElement,
+			Map<String, String> params, String... path)
+					throws RestResourceException {
+		return makeTheCall("GET", urlFor(collectionOrElement, params, path));
+	}
+
+	public static String post(Object collectionOrElement,
+			Map<String, String> params, Element element, String... path)
+					throws RestResourceException {
+		return makeTheCall("POST", urlFor(collectionOrElement, params, path),
+				parseElement(element));
+	}
+	public static String post(Object collectionOrElement,
+			Element element, String... path) throws RestResourceException {
+		return post(collectionOrElement, null, element, path);
+	}
+	public static String post(Object collectionOrElement,
+			Map<String, String> params, String... path)
+					throws RestResourceException {
+		return post(collectionOrElement, params, null, path);
+	}
+	public static String post(Object collectionOrElement, String... path)
+			throws RestResourceException {
+		return post(collectionOrElement, (Element)null, path);
+	}
+
+	public static String put(Object collectionOrElement,
+			Map<String, String> params, Element element, String... path)
+					throws RestResourceException {
+		return makeTheCall("PUT", urlFor(collectionOrElement, params, path),
+				parseElement(element));
+	}
+	public static String put(Object collectionOrElement,
+			Element element, String... path) throws RestResourceException {
+		return put(collectionOrElement, null, element, path);
+	}
+	public static String put(Object collectionOrElement,
+			Map<String, String> params, String... path)
+					throws RestResourceException {
+		return put(collectionOrElement, params, null, path);
+	}
+	public static String put(Object collectionOrElement, String... path)
+			throws RestResourceException {
+		return put(collectionOrElement, null, null, path);
+	}
+
+	public static String delete(Object collectionOrElement,
+			Map<String, String> params, String... path)
+					throws RestResourceException {
+		return makeTheCall("DELETE", urlFor(collectionOrElement, params, path));
+	}
+	public static String delete(Object collectionOrElement, String... path)
+			throws RestResourceException {
+		return delete(collectionOrElement, null, path);
 	}
 
 	protected static <T> T loadElement(Class<T> klass, String body, Gson gson)
@@ -146,9 +172,13 @@ public class RestResource {
 					+ "JSON: " + body, e);
 		}
 	}
+	protected static <T> T loadElement(Class<T> klass, String body)
+			throws RestResourceException {
+		return loadElement(klass, body, new Gson());
+	}
 
-	protected static <T> List<T> loadCollection(Class<T> klass, String body,
-			Gson gson) {
+	public static <T> List<T> loadCollection(Class<T> klass, String body,
+			Gson gson) throws RestResourceException {
 		try {
 			@SuppressWarnings("unchecked")
 			List<T> l = gson.fromJson(body, List.class);
@@ -160,38 +190,59 @@ public class RestResource {
 					+ "JSON: " + body, e);
 		}
 	}
+	public static <T> List<T> loadCollection(Class<T> klass, String body)
+			throws RestResourceException {
+		return loadCollection(klass, body, new Gson());
+	}
+
+	public static <T> String parseElement(T o, Gson gson) {
+		if (o == null)
+			return "";
+		return new StringBuilder("{\"").append(elementName(o.getClass())).
+				append("\"").append(": ").append(gson.toJson(o)).append("}").
+				toString();
+	}
+	public static <T> String parseElement(T o) {
+		return parseElement(o, new Gson());
+	}
 
 	protected static String makeTheCall(String method, String path,
-			String... params) throws RestResourceException {
-		HttpURLConnection connection = openConnection(method, path, params);
+			String body) throws RestResourceException {
+		HttpURLConnection connection = openConnection(method, path, body);
 		try {
 			if (requestListeners != null)
 				for (RequestListener l : requestListeners)
-					l.requestMade(method, path, params);
+					l.requestMade(method, path, body);
 			if (handleResponseCode(connection) == NO_CONTENT)
 				return null;;
-			return extractResponseBody(connection);
+				return extractResponseBody(connection);
 		} finally {
 			connection.disconnect();
 		}
+	}
+	protected static String makeTheCall(String method, String path)
+			throws RestResourceException {
+		return makeTheCall(method, path, null);
 	}
 
 	protected static int handleResponseCode(HttpURLConnection connection)
 			throws RestResourceException {
 		try {
 			int status = connection.getResponseCode();
+			String url = connection.getURL().toString();
+			String method = connection.getRequestMethod();
 			if (status == UNAUTHORIZED_ACCESS)
-				throw new UnauthorizedAccessException(status);
+				throw new UnauthorizedAccessException(status, method, url);
 			else if (status == FORBIDDEN_ACCESS)
-				throw new ForbiddenAccessException(status);
+				throw new ForbiddenAccessException(status, method, url);
 			else if (status == RESOURCE_INVALID)
-				throw new ResourceInvalidException(status);
+				throw new ResourceInvalidException(status, method, url);
 			else if (status == NOT_FOUND)
-				throw new ResourceNotFoundException(status);
+				throw new ResourceNotFoundException(status, method, url);
 			else if (status >= 400 && status < 500)
-				throw new ClientException(status);
+				throw new ClientException(status, method, url);
 			else if (status >= 500 && status < 600)
-				throw new ServerException(status);
+				throw new ServerException(status, method, url);
 			return status;
 		} catch (IOException e) {
 			throw new RestResourceException("Error while reading the response"
@@ -221,22 +272,13 @@ public class RestResource {
 	}
 
 	protected static HttpURLConnection openConnection(String method, String path,
-			String... params) throws RestResourceException {
+			String body) throws RestResourceException {
 		URL url = null;
 		try {
-			StringBuilder sb = new StringBuilder(path);
-			if (method.equals("GET")) {
-				String separator = "?";
-				for (String param : params) {
-					sb.append(separator);
-					sb.append(param);
-					separator = "&";
-				}
-			}
-			url = new URL(sb.toString());
+			url = new URL(path);
 		} catch (MalformedURLException e) {
 			throw new RestResourceException("Error while composing URL (method="
-					+ method + ", path=" + path + ", params=" + params + ")", e);
+					+ method + ", path=" + path + ")", e);
 		}
 		HttpURLConnection connection = null;
 		try {
@@ -255,22 +297,24 @@ public class RestResource {
 		} catch (ProtocolException e) {
 			throw new RestResourceException("Protocol error.", e);
 		}
-		if (!method.equals("GET")) {
-			connection.setRequestProperty("Accept", "application/" + format);
-			connection.setRequestProperty("Content-Type", "application/" + format);
-			if (params.length > 0)
-				try {
-					DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
-					for (String param : params)
-						dos.writeBytes(param);
-					dos.flush();
-					dos.close();
-				} catch (IOException e) {
-					throw new RestResourceException("Error while writing POST "
-							+ "parameters (" + params + ")", e);
-				}
+		connection.setRequestProperty("Accept", "application/" + format);
+		connection.setRequestProperty("Content-Type", "application/" + format);
+		if (body != null) {
+			try {
+				DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
+				dos.writeBytes(body);
+				dos.flush();
+				dos.close();
+			} catch (IOException e) {
+				throw new RestResourceException("Error while writing "
+						+ method + " with body (" + body + ")", e);
+			}
 		}
 		return connection;
+	}
+	protected static HttpURLConnection openConnection(String method, String path)
+			throws RestResourceException {
+		return openConnection(method, path, null);
 	}
 
 	public static void addRequestListener(RequestListener requestListener) {

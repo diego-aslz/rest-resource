@@ -1,6 +1,7 @@
 package restresource;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static restresource.support.TestUtils.assertLastRequest;
 import static restresource.support.TestUtils.assertRaises;
 import static restresource.support.TestUtils.assertRaisesStatusException;
@@ -14,6 +15,7 @@ import restresource.exceptions.ResourceNotFoundException;
 import restresource.support.Person;
 import restresource.support.StatusCode;
 import restresource.support.TestUtils;
+import restresource.utils.ParamGenerator;
 import restresource.utils.Proc;
 
 public class RestResourceIntegrationTest {
@@ -50,11 +52,12 @@ public class RestResourceIntegrationTest {
 
 	@Test
 	public void testAllWithQueryParameter() {
-		List<Person> l = RestResource.all(Person.class, "name=John", "test=true");
+		List<Person> l = RestResource.all(Person.class,
+				new ParamGenerator("name", "John").append("test", "true").map());
+		assertLastRequest("GET", "http://localhost:4567/people.json?"
+				+ "test=true&name=John");
 		assertEquals(1, l.size());
 		assertEquals("John", l.get(0).getName());
-		assertLastRequest("GET", "http://localhost:4567/people.json",
-				"name=John", "test=true");
 	}
 
 	@Test
@@ -62,7 +65,8 @@ public class RestResourceIntegrationTest {
 		assertRaisesStatusException(new Proc() {
 			@Override
 			public void call(Object... args) {
-				RestResource.all(StatusCode.class, "status=" + args[0]);
+				RestResource.all(StatusCode.class,
+						new ParamGenerator("status", args[0]).map());
 			}
 		});
 	}
@@ -101,19 +105,106 @@ public class RestResourceIntegrationTest {
 	}
 
 	@Test
-	public void testDelete() {
+	public void testDestroy() {
 		final StatusCode sc = new StatusCode();
 		sc.setCustomId(1);
 		assertRaises(ResourceNotFoundException.class, new Proc() {
 			@Override
 			public void call(Object... args) {
-				RestResource.delete(sc);
+				RestResource.destroy(sc);
 			}
 		});
 
 		Person p = new Person();
 		p.setId(1);
-		RestResource.delete(p);
+		RestResource.destroy(p);
 		assertLastRequest("DELETE", "http://localhost:4567/people/1.json");
+	}
+
+	@Test
+	public void testGet() {
+		assertEquals("{\"person\":{\"name\":\"John\"}}",
+				RestResource.get(Person.class, "1"));
+		assertLastRequest("GET", "http://localhost:4567/people/1.json");
+
+		assertEquals("[{\"name\":\"John\"},{\"name\":\"Mary\"}]",
+				RestResource.get(Person.class));
+		assertLastRequest("GET", "http://localhost:4567/people.json");
+
+		assertEquals("[{\"name\":\"John\"}]",
+				RestResource.get(Person.class, new ParamGenerator("name",
+						"John").append("test", true).map()));
+		assertLastRequest("GET",
+				"http://localhost:4567/people.json?test=true&name=John");
+	}
+
+	@Test
+	public void testPost() {
+		assertEquals("{\"person\":{\"id\":1,\"name\":\"John\"}}",
+				RestResource.post(Person.class,
+						new Person(0, "John")));
+		assertLastRequest("POST", "http://localhost:4567/people.json",
+				"{\"person\": {\"id\":0,\"name\":\"John\"}}");
+		try {
+			RestResource.post(Person.class, new ParamGenerator("test", "true").
+					map(), "create");
+		} catch(ResourceNotFoundException e) {
+			// ignore this
+		}
+		assertLastRequest("POST",
+				"http://localhost:4567/people/create.json?test=true", "");
+	}
+
+	@Test
+	public void testPut() {
+		String body = "{\"person\": {\"id\":1,\"name\":\"John\"}}";
+		assertNull(RestResource.put(new Person(1), new Person(1, "John")));
+		assertLastRequest("PUT", "http://localhost:4567/people/1.json", body);
+
+		try {
+			RestResource.put(new Person(1), new ParamGenerator("test", "false").
+					map(), "update");
+		} catch(ResourceNotFoundException e) {
+			// ignore this
+		}
+		assertLastRequest("PUT",
+				"http://localhost:4567/people/1/update.json?test=false", "");
+
+		try {
+			RestResource.put(new Person(1), "promote");
+		} catch(ResourceNotFoundException e) {
+			// ignore this
+		}
+		assertLastRequest("PUT",
+				"http://localhost:4567/people/1/promote.json", "");
+}
+
+	@Test
+	public void testDelete() {
+		assertNull(RestResource.delete(new Person(1)));
+		assertLastRequest("DELETE", "http://localhost:4567/people/1.json");
+
+		try {
+			assertNull(RestResource.delete(Person.class));
+		} catch(ResourceNotFoundException e) {
+			// ignore this
+		}
+		assertLastRequest("DELETE", "http://localhost:4567/people.json");
+
+		try {
+			RestResource.delete(new Person(1), new ParamGenerator("test",
+					"delete").map(), "fire");
+		} catch(ResourceNotFoundException e) {
+			// ignore this
+		}
+		assertLastRequest("DELETE",
+				"http://localhost:4567/people/1/fire.json?test=delete");
+
+		try {
+			RestResource.delete(new Person(1), "fire");
+		} catch(ResourceNotFoundException e) {
+			// ignore this
+		}
+		assertLastRequest("DELETE", "http://localhost:4567/people/1/fire.json");
 	}
 }

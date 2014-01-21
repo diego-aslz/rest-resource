@@ -1,10 +1,11 @@
 package restresource.support;
 
+import restresource.Element;
 import restresource.Id;
 
 import com.google.gson.annotations.Expose;
 
-public class StatusCode {
+public class StatusCode implements Element {
 	@Id
 	int customId;
 	@Expose

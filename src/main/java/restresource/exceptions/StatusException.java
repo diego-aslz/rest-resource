@@ -5,8 +5,10 @@ public class StatusException extends RestResourceException {
 	
 	protected int status;
 
-	public StatusException(int status) {
-		super("Unexpected status received: " + status);
+	public StatusException(int status, String method, String url) {
+		super(new StringBuilder("Unexpected status received (").append(status).
+				append(") for ").append(method).append(" ").append(url).
+				toString());
 		this.status = status;
 	}
 

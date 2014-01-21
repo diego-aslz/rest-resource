@@ -1,6 +1,5 @@
 package restresource.support;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,13 +75,16 @@ public class TestUtils {
 	}
 	
 	public static Request assertLastRequest(String method, String path,
-			String... params) {
+			String body) {
 		Request req = lastRequest();
 		assertNotNull("Last request should not be null.", req);
-		assertEquals(     method, req.method());
-		assertEquals(     path,   req.path()  );
-		assertArrayEquals(params, req.params());
+		assertEquals(method, req.method());
+		assertEquals(path,   req.path()  );
+		assertEquals(body,   req.body()  );
 		return req;
+	}
+	public static Request assertLastRequest(String method, String path) {
+		return assertLastRequest(method, path, null);
 	}
 
 	public static Request lastRequest() {
@@ -95,8 +97,8 @@ public class TestUtils {
 		requests.clear();
 		RestResource.addRequestListener(new RequestListener() {
 			@Override
-			public void requestMade(String method, String path, String... params) {
-				requests.add(new Request(method, path, params));
+			public void requestMade(String method, String path, String body) {
+				requests.add(new Request(method, path, body));
 			}
 		});
 	}

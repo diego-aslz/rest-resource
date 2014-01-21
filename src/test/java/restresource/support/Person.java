@@ -1,11 +1,25 @@
 package restresource.support;
 
+import restresource.Element;
+
 import com.google.gson.annotations.Expose;
 
-public class Person {
+public class Person implements Element {
 	int id;
 	@Expose
 	String name;
+
+	public Person() {
+	}
+
+	public Person(int id) {
+		this.id = id;
+	}
+
+	public Person(int id, String name) {
+		this.id = id;
+		this.name = name;
+	}
 
 	/**
 	 * Determines the address where the RESTful Web Service is.

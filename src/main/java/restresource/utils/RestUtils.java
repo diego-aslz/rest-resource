@@ -3,6 +3,7 @@ package restresource.utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import restresource.Id;
 import restresource.exceptions.RestResourceException;
@@ -42,6 +43,36 @@ public final class RestUtils {
 		}
 	}
 
+	public static String collectionPath(Class<?> klass, String... paths) {
+		return collectionPath(klass, null, paths);
+	}
+
+	public static String collectionPath(Class<?> klass,
+			Map<String, String> params, String... paths) {
+		StringBuilder sb = new StringBuilder(collectionName(klass));
+		for (String path : paths)
+			sb.append("/").append(path);
+		sb.append(".").append(format(klass));
+		if (params != null) {
+			String sep = "?";
+			for (String key : params.keySet()) {
+				sb.append(sep).append(key).append("=").append(params.get(key));
+				sep = "&";
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String collectionUrl(Class<?> klass, String... paths) {
+		return collectionUrl(klass, null, paths);
+	}
+
+	public static String collectionUrl(Class<?> klass,
+			Map<String, String> params, String... paths) {
+		return new StringBuilder(site(klass)).
+				append(collectionPath(klass, params, paths)).toString();
+	}
+
 	/**
 	 * Determines the element name to be used when generating a Json object.
 	 * If the 'klass' parameter implements the method
@@ -57,6 +88,28 @@ public final class RestUtils {
 			return klass.getSimpleName().replaceAll("([a-z])([A-Z])", "$1_$2").
 					toLowerCase();
 		}
+	}
+
+	public static String elementPath(Object element, String... paths) {
+		return elementPath(element, null, paths);
+	}
+
+	public static String elementPath(Object element, Map<String, String> params,
+			String... paths) {
+		String[] path = new String[paths.length + 1];
+		path[0] = id(element).toString();
+		System.arraycopy(paths, 0, path, 1, paths.length);
+		return collectionPath(element.getClass(), params, path);
+	}
+
+	public static String elementUrl(Object element, String... paths) {
+		return elementUrl(element, null, paths);
+	}
+
+	public static String elementUrl(Object element, Map<String, String> params,
+			String... paths) {
+		return new StringBuilder(site(element.getClass())).
+				append(elementPath(element, params, paths)).toString();
 	}
 
 	/**
@@ -93,6 +146,18 @@ public final class RestUtils {
 					+ "field (" + idField.getName() + ") for element " +
 					element, e);
 		}
+	}
+
+	public static String urlFor(Object collectionOrElement,
+			Map<String, String> params, String... path) {
+		if (collectionOrElement instanceof Class)
+			return collectionUrl((Class<?>) collectionOrElement, params, path);
+		else
+			return elementUrl(collectionOrElement, params, path);
+	}
+
+	protected static String format(Class<?> klass) {
+		return "json";
 	}
 
 	protected static String invokeMethod(Class<?> klass, String method,

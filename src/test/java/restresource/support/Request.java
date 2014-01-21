@@ -3,12 +3,12 @@ package restresource.support;
 public class Request {
 	private String method;
 	private String path;
-	private String[] params;
+	private String body;
 
-	public Request(String method, String path, String... params) {
+	public Request(String method, String path, String body) {
 		this.method = method;
-		this.path = path;
-		this.params = params;
+		this.path   = path;
+		this.body   = body;
 	}
 
 	public String method() {
@@ -19,7 +19,7 @@ public class Request {
 		return path;
 	}
 
-	public String[] params() {
-		return params;
+	public String body() {
+		return body;
 	}
 }
