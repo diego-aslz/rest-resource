@@ -12,9 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import restresource.exceptions.ResourceNotFoundException;
+import restresource.exceptions.UnauthorizedAccessException;
 import restresource.support.Person;
 import restresource.support.StatusCode;
 import restresource.support.TestUtils;
+import restresource.support.User;
 import restresource.utils.ParamGenerator;
 import restresource.utils.Proc;
 
@@ -177,7 +179,7 @@ public class RestResourceIntegrationTest {
 		}
 		assertLastRequest("PUT",
 				"http://localhost:4567/people/1/promote.json", "");
-}
+	}
 
 	@Test
 	public void testDelete() {
@@ -206,5 +208,27 @@ public class RestResourceIntegrationTest {
 			// ignore this
 		}
 		assertLastRequest("DELETE", "http://localhost:4567/people/1/fire.json");
+	}
+
+	@Test
+	public void testAuth() {
+		assertRaises(UnauthorizedAccessException.class, new Proc() {
+			@Override
+			public void call(Object... args) {
+				User.setSite("http://localhost:4567/");
+				RestResource.find(1, User.class);
+			}
+		});
+
+		assertRaises(UnauthorizedAccessException.class, new Proc() {
+			@Override
+			public void call(Object... args) {
+				User.setSite("http://user:pas@localhost:4567/");
+				RestResource.find(1, User.class);
+			}
+		});
+
+		User.setSite("http://user:pass@localhost:4567/");
+		RestResource.find(1, User.class);
 	}
 }

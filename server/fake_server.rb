@@ -1,6 +1,19 @@
 require 'sinatra'
 require 'json'
 
+helpers do
+  def authenticate!
+    return if authorized?
+    headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+    halt 401, "Not authorized\n"
+  end
+
+  def authorized?
+    @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+    @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == ['user', 'pass']
+  end
+end
+
 get '/people/1.json' do
   content_type :json
   {person: {name: "John"}}.to_json
@@ -55,5 +68,10 @@ end
 delete '/people/1.json' do
   content_type :json
 
+  [204, nil.to_json]
+end
+
+get '/users/1.json' do
+  authenticate!
   [204, nil.to_json]
 end

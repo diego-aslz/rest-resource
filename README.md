@@ -4,9 +4,6 @@ Rest Resource is a framework whose goal is to provide an easy and simple
 way to access RESTful Web Services Apis like Rails. It's intended to work like
 ActiveResource.
 
-This framework does not have all the functionalities it's intended to have yet.
-However, some of them are (those explained below), and can be already used.
-
 ## Mapping RESTful resources as models
 
 To make a class behave like a RESTful resource model, it needs to implement
@@ -102,6 +99,19 @@ RestResource.delete(new Person(1), "fire");
 ```
 
 If you want to see more examples, take a look at the test classes.
+
+## Authentication
+
+It is possible to authenticate users using HTTP Basic Auth. To do so, you just
+need to set your user and password in the URL:
+
+```java
+public class Person implements restresource.Element {
+  public static String getSite() {
+    return "http://user:password@localhost:4567/";
+  }
+}
+```
 
 ## Status Code Exceptions
 

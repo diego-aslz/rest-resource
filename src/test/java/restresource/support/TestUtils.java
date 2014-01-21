@@ -32,6 +32,8 @@ public class TestUtils {
 		}
 		assertNotNull("Expected to catch an exception of " + klass
 				+ ", but no exception was received.", exc);
+		if (klass != exc.getClass())
+			exc.printStackTrace();
 		assertEquals(klass, exc.getClass());
 	}
 

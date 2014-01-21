@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import org.apache.commons.codec.binary.Base64;
+
 import restresource.exceptions.ClientException;
 import restresource.exceptions.ForbiddenAccessException;
 import restresource.exceptions.ResourceInvalidException;
@@ -90,9 +92,10 @@ public class RestResource {
 			body = put(klass, o, id.toString());
 		}
 
-		if (body == null)
+		T el = loadElement(klass, body, gson);
+		if (el == null)
 			return o;
-		return loadElement(klass, body, gson);
+		return el;
 	}
 
 	public static void destroy(Object o) throws RestResourceException {
@@ -165,10 +168,11 @@ public class RestResource {
 	protected static <T> T loadElement(Class<T> klass, String body, Gson gson)
 			throws RestResourceException {
 		try {
+			if (body == null || body.isEmpty())
+				return null;
 			@SuppressWarnings("unchecked")
 			Map<String, Object> r = gson.fromJson(body, Map.class);
-			return gson.fromJson(gson.toJson(r.get(elementName(klass))),
-					klass);
+			return gson.fromJson(gson.toJson(r.get(elementName(klass))), klass);
 		} catch(JsonSyntaxException e) {
 			throw new RestResourceException("Unable to parse response body to "
 					+ "JSON: " + body, e);
@@ -216,8 +220,8 @@ public class RestResource {
 				for (RequestListener l : requestListeners)
 					l.requestMade(method, path, body);
 			if (handleResponseCode(connection) == NO_CONTENT)
-				return null;;
-				return extractResponseBody(connection);
+				return null;
+			return extractResponseBody(connection);
 		} finally {
 			connection.disconnect();
 		}
@@ -299,6 +303,10 @@ public class RestResource {
 		} catch (ProtocolException e) {
 			throw new RestResourceException("Protocol error.", e);
 		}
+		String basicAuth = url.getUserInfo();
+		if (basicAuth != null && !basicAuth.isEmpty())
+			connection.addRequestProperty("Authorization", "Basic " + 
+					new String(Base64.encodeBase64(basicAuth.getBytes())));
 		connection.setRequestProperty("Accept", "application/" + format);
 		connection.setRequestProperty("Content-Type", "application/" + format);
 		if (body != null) {
