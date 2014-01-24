@@ -165,7 +165,7 @@ public class RestResource {
 		return delete(collectionOrElement, null, path);
 	}
 
-	protected static <T> T loadElement(Class<T> klass, String body, Gson gson)
+	public static <T> T loadElement(Class<T> klass, String body, Gson gson)
 			throws RestResourceException {
 		try {
 			if (body == null || body.isEmpty())
@@ -178,7 +178,7 @@ public class RestResource {
 					+ "JSON: " + body, e);
 		}
 	}
-	protected static <T> T loadElement(Class<T> klass, String body)
+	public static <T> T loadElement(Class<T> klass, String body)
 			throws RestResourceException {
 		return loadElement(klass, body, new Gson());
 	}
