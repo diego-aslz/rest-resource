@@ -12,7 +12,6 @@ To make a class behave like a RESTful resource model, it needs to implement
 ```java
 public class Person implements restresource.Element {
   int id;
-  @Expose
   String name;
 
   // Constructors, getters and setters (not really needed)
