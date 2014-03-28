@@ -296,7 +296,8 @@ public class RestResource {
 					append(url.toString()).toString(), e);
 		}
 		connection.setDoInput(true);
-		connection.setDoOutput(true);
+		if ("POSTPUTDELETETRACEHEADOPTIONS".contains(method))
+			connection.setDoOutput(true);
 		connection.setInstanceFollowRedirects(false);
 		try {
 			connection.setRequestMethod(method);
@@ -307,8 +308,10 @@ public class RestResource {
 		if (basicAuth != null && !basicAuth.isEmpty())
 			connection.addRequestProperty("Authorization", "Basic " + 
 					new String(Base64.encodeBase64(basicAuth.getBytes())));
-		connection.setRequestProperty("Accept", "application/" + format);
-		connection.setRequestProperty("Content-Type", "application/" + format);
+		if ("POSTPUT".contains(method))
+			connection.setRequestProperty("Content-Type", "application/" + format);
+		else
+			connection.setRequestProperty("Accept", "application/" + format);
 		if (body != null) {
 			try {
 				DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
